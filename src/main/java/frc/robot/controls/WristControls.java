@@ -17,7 +17,7 @@ public class WristControls {
    * m_joy is a variable of the type Joystick
   */
 
-  WristSubsystemMotorPower m_wristWithMotorPower; 
+  WristSubsystemMotorPower m_wrist; 
 
   Trigger m_button1;
   Trigger m_button2;
@@ -46,7 +46,7 @@ public class WristControls {
    */
   public WristControls(WristSubsystemMotorPower wristSubsystemMotorPower){
     
-    m_wristWithMotorPower = wristSubsystemMotorPower; 
+    m_wrist = wristSubsystemMotorPower; 
     m_joy = new Joystick(0); 
     m_button1 = new JoystickButton(m_joy, 1);
     m_button2 = new JoystickButton(m_joy, 2);
@@ -64,8 +64,8 @@ public class WristControls {
      * sets the desired setpoint in the WristSubsystem using the setSetpoint() method declared there 
      */
 
-    m_button1.onTrue(new InstantCommand(()-> m_wristWithMotorPower.setMotorPower(50)));
-    m_button2.onTrue(new InstantCommand(()-> m_wristWithMotorPower.setMotorPower(-50)));
+    m_button1.onTrue(new InstantCommand(()-> m_wrist.setMotorPower(50)));
+    m_button2.onTrue(new InstantCommand(()-> m_wrist.setMotorPower(-50)));
 
 
   }
