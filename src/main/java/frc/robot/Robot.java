@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationInit() {}
 
-  /** This function is called periodically while in simulation. Nothing is here because the wristSubsystem takes care of it with it's
+  /** This function is called periodically while in simulation. Nothing is here because the wrist subsystem takes care of it with it's
    *  own simulationPeriodic() method. 
    */
   @Override

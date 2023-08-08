@@ -32,8 +32,6 @@ public class WristSubsystemMotorPower extends SubsystemBase {
   //These are instance variables. See WristControls.java for an explanation on this type of variable. 
   private final WPI_TalonFX m_wristMotor;
 
-  private TalonFXSimCollection m_motorSim; 
-
   private Mechanism2d m_wristDisplay; 
   private MechanismRoot2d m_pivot; 
   private MechanismLigament2d m_stationary; 
@@ -43,7 +41,7 @@ public class WristSubsystemMotorPower extends SubsystemBase {
   private double m_motorPower; 
 
   /**
-   * This is the constructor for the WristSubsystem class. 
+   * This is the constructor for the WristSubsystemMotorPower class. 
    * See WristControls.java for a detailed explanation of a constructor. 
    */
 
@@ -57,13 +55,10 @@ public class WristSubsystemMotorPower extends SubsystemBase {
      * Allocate resources for simulation only if the robot is in a simulation. 
      * This is VERY IMPORTANT TO DO because when we update our simulated inbuilt motor encoder(falcon motors have an inbuilt encoder) in simulationPeriodic() it updates the actual encoder in the motor.
      * 
-     * By wrapping the sim stuff in this if statement, simulation stuff is only created if we are running the simulation. If sim stuff is only created when sim mode is running, then there is little chance of actual motors, sensors, etc. being affected.
+     * By wrapping the simulation stuff in this if statement, simulation stuff is only created if we are running the simulation. If sim stuff is only created when sim mode is running, then there is little chance of actual motors, sensors, etc. being affected.
      *
      */
     if(RobotBase.isSimulation()){
-
-      //create a simulated falcon(and inbuilt encoder, the encoder is inbuilt in the motor)
-      m_motorSim = m_wristMotor.getSimCollection();
 
       //create arm physics simulation 
       m_armSim = new SingleJointedArmSim(
@@ -117,13 +112,16 @@ public class WristSubsystemMotorPower extends SubsystemBase {
     
   }
 
-  //This is the simulationPeriodic() method. It constantly runs in simuation. 
+  //This is the simulationPeriodic() method. It constantly runs when we launch the simulator. 
   @Override
   public void simulationPeriodic() {
     /**
-     * First, we set our voltage to the armSim
+     * First, we set our voltage to the armSim.
      *  
      * We do this by multipling the motor's power value(-1 to 1) by the battery voltage, which gets estimated later.
+     * 
+     * The motor's power value changes when our instant commands in WristControls changes it. This causes us to set a different voltage input to the arm sim, which updates it's angle, which updates the moving arm of the wrist, which updates the display. 
+     *
      * 
      * If we were to call m_armSim.getAngleRads() the armSim would do some math using this voltage and calculate its angle in radians. 
      */    
@@ -131,27 +129,6 @@ public class WristSubsystemMotorPower extends SubsystemBase {
     
     // Next, we update the armSim. The standard loop time is 20ms.
     m_armSim.update(0.020);
-
-    /**
-     * Finally, we set our simulated encoder's readings according to the angle(radians) of the armSim. 
-     * IMPORTANT: This also updates the real encoder as used in the PID method.
-     * 
-     * The flow of the simulation is detailed below. 
-     * 
-     * 1) Set our simulated encoder's readings. 
-     * 
-     * 2) Actual encoder position, which is used in the PID method is updated automatically. 
-     * 
-     * 3) a new error is calculated by the PID method, and a new PID output is sent to the motor.
-     *
-     * 4) The motor's power value(-1 to 1) gets updated because of that 
-     * 
-     * 5) We once again set the armSim's input voltage as we did at the top of 
-     * the simulationPeriodic() method, 
-     * 
-     * 6) the armSim's angle is affected, loop back to step 1.   
-     */
-    m_motorSim.setIntegratedSensorRawPosition(armSimRadsToTicks(m_armSim.getAngleRads())); 
       
     /**
      * The BatterySim estimates loaded battery voltages(voltage of battery under load due to motors and other stuff running) based on the armSim's calculation of it's current draw. 
@@ -161,19 +138,19 @@ public class WristSubsystemMotorPower extends SubsystemBase {
      * We set this voltage as the VIn Voltage of the RobRio(voltage that gets sent to the roboRio, this input voltage changes in real life as well)
      * Then we can do RobotController.getBatteryVoltage() and multiply it by our motor's power to set the armSim's input, as we did at the top of the simulationPeriodic() method. 
      */
-
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
 
     // Finally update the moving arm's angle based on the armSim angle. This updates the display. 
     m_moving.setAngle(Units.radiansToDegrees(m_armSim.getAngleRads()));
     
+    //call the moveMotor method to set the desired power to the motor. 
     moveMotor(); 
   }
 
   /**
-   * This method employs a PID controller to calculate a value to send to a motor
-   * to get the arm to reach a setpoint(an angle)
+   * This method sets a desired motor power to the m_motorPower variable declared in this file. 
+   * We call this method in an InstantCommand in WristControls.java in order to set a desired motor power. 
    * @param setpoint
    */
 
@@ -181,12 +158,9 @@ public class WristSubsystemMotorPower extends SubsystemBase {
     m_motorPower = MathUtil.clamp(power,-1,1); 
   }
 
+  //set m_motorPower to the motor. 
   public void moveMotor(){
     m_wristMotor.set(m_motorPower); 
   }
 
-  public int armSimRadsToTicks(double rads){
-    int rawPos = (int)(rads/(2*Math.PI)*2048);
-    return rawPos;  
-  }
 }

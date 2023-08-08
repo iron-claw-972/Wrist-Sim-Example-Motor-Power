@@ -25,20 +25,20 @@ public class WristControls {
   Joystick m_joy; 
 
   /**
-   * This is the constructor for the WristControls class. It requires a WristSubsystem class as a parameter. 
+   * This is the constructor for the WristControls class. We give the constructor a parameter -- an object(wristSubsystemMotorPower) of the type WristSubsystemMotorPower(a class). 
    * 
    * <p>
    * 
-   * When we create an object of this class in RobotContainer.java we will pass it a WristSubsystem object to it as well. 
+   * To satisfy this parameter, when we create an object of this controls class in RobotContainer.java we will pass in a WristSubsystemMotorPower object into it. 
    * 
    * <p> 
    * 
-   * By doing m_wrist = wristSubsystem, m_wrist holds a WristSubsystem class now. We can now access all the methods inside WristSubsystem.java
+   * By doing m_wrist = wristSubsystemMotorPower(line 49), m_wrist now holds a WristSubsystemMotorPower class now. We can now access all the methods inside WristSubsystemMotorPower.java
    * 
    * <p>
    * 
-   * For the other instance variables, we can just turn them directly into objects by assigning them to an instance of the class
-   * by doing m_instanceVariable = new Class(); in the constructor, ex: m_joy = new Joystick(0); 
+   * For the other instance variables, we can just turn them directly into objects by 
+   * assigning them to an instance of the class by doing m_instanceVariable = new Class(); .We do this in the constructor, ex: m_joy = new Joystick(0); 
    * 
    * <p> 
    * 
@@ -61,11 +61,11 @@ public class WristControls {
 
     /**
      * When a button is pressed an InstantCommand() is created that, on button press,
-     * sets the desired setpoint in the WristSubsystem using the setSetpoint() method declared there 
+     * sets the desired motorPower to the wrist by using the setMotorPower() method declared in WristSubsystemMotorPower.
      */
 
-    m_button1.onTrue(new InstantCommand(()-> m_wrist.setMotorPower(50)));
-    m_button2.onTrue(new InstantCommand(()-> m_wrist.setMotorPower(-50)));
+    m_button1.onTrue(new InstantCommand(()-> m_wrist.setMotorPower(0.25)));
+    m_button2.onTrue(new InstantCommand(()-> m_wrist.setMotorPower(-0.25)));
 
 
   }
