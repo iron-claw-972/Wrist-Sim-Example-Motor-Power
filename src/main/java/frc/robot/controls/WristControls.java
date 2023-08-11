@@ -12,7 +12,7 @@ public class WristControls {
   /**
    * Below are instance variables. Think of them as the specific variables that we are going to need for THIS class
    * 
-   * m_wrist is a variable of the type WristSubsystem 
+   * m_wrist is a variable of the type WristSubsystemMotorPower
    * m_button1, m_button1, and m_button3 are variables of the type Trigger
    * m_joy is a variable of the type Joystick
   */
@@ -37,8 +37,7 @@ public class WristControls {
    * 
    * <p>
    * 
-   * For the other instance variables, we can just turn them directly into objects by 
-   * assigning them to an instance of the class by doing m_instanceVariable = new Class(); .We do this in the constructor, ex: m_joy = new Joystick(0); 
+   * For the other instance variables, we can just pass in objects of our desired classes to them by doing m_instanceVariable = new Class(); .We do this in the constructor, ex: m_joy = new Joystick(0); 
    * 
    * <p> 
    * 
@@ -47,7 +46,10 @@ public class WristControls {
   public WristControls(WristSubsystemMotorPower wristSubsystemMotorPower){
     
     m_wrist = wristSubsystemMotorPower; 
+    
+    //create a joystick object and assign it to m_joy. this joystick and its buttons can be accessed in simulation and real life. 
     m_joy = new Joystick(0); 
+    
     m_button1 = new JoystickButton(m_joy, 1);
     m_button2 = new JoystickButton(m_joy, 2);
     m_button3 = new JoystickButton(m_joy,3);
@@ -61,7 +63,7 @@ public class WristControls {
 
     /**
      * When a button is pressed an InstantCommand() is created that, on button press,
-     * sets the desired motorPower to the wrist by using the setMotorPower() method declared in WristSubsystemMotorPower.
+     * sets the desired motorPower to the wrist by using the setMotorPower() method declared in WristSubsystemMotorPower.java
      */
 
     m_button1.onTrue(new InstantCommand(()-> m_wrist.setMotorPower(0.25)));

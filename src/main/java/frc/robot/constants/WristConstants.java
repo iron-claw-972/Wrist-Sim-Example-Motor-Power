@@ -21,7 +21,7 @@ public class WristConstants {
   /** Wrist moment of inertia represents how hard it is to angularly accelerate (ie spin) something. */
   public static final double kMomentOfInertia = kCOGWeight * kCOGDistance * kCOGDistance; // 0.1405
 
-  //the real hard stop angles of the wrist
+  //the min and max angles of the wrist
   public static final double kMinAngleDegrees = -90;
   public static final double kMaxAngleDegrees = 90;
   
