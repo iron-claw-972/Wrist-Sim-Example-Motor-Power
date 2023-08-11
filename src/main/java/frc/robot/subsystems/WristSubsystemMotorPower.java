@@ -50,7 +50,6 @@ public class WristSubsystemMotorPower extends SubsystemBase {
     //create the motor for the wrist 
     m_wristMotor = new WPI_TalonFX(1);
 
-    
     /**
      * Allocate resources for simulation only if the robot is in a simulation. 
      * This is VERY IMPORTANT TO DO because when we update our simulated inbuilt motor encoder(falcon motors have an inbuilt encoder) in simulationPeriodic() it updates the actual encoder in the motor.
@@ -66,8 +65,8 @@ public class WristSubsystemMotorPower extends SubsystemBase {
         WristConstants.kGearing, 
         WristConstants.kMomentOfInertia, 
         WristConstants.kArmLength, 
-        WristConstants.kMinAngleRadsHardStop, 
-        WristConstants.kMaxAngleRadsHardStop,
+        Units.degreesToRadians(WristConstants.kMinAngleDegrees), 
+        Units.degreesToRadians(WristConstants.kMaxAngleDegrees),
         true
       );
 
@@ -109,7 +108,6 @@ public class WristSubsystemMotorPower extends SubsystemBase {
   public void periodic() {
     // This method will be called once every time the scheduler runs
     moveMotor();
-    
   }
 
   //This is the simulationPeriodic() method. It constantly runs when we launch the simulator. 
@@ -158,7 +156,7 @@ public class WristSubsystemMotorPower extends SubsystemBase {
     m_motorPower = MathUtil.clamp(power,-1,1); 
   }
 
-  //set m_motorPower to the motor. 
+  //set m_motorPower to the motor so that it moves.  
   public void moveMotor(){
     m_wristMotor.set(m_motorPower); 
   }
