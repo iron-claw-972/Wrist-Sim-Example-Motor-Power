@@ -25,7 +25,7 @@ public class WristControls {
   Joystick m_joy; 
 
   /**
-   * This is the constructor for the WristControls class. We give the constructor a parameter -- an object(wristSubsystemMotorPower) of the type WristSubsystemMotorPower(a class). 
+   * This is the constructor for the WristControls class. The constructor has a parameter -- it needs an object(wristSubsystemMotorPower) of the type WristSubsystemMotorPower(a class). 
    * 
    * <p>
    * 
@@ -33,11 +33,11 @@ public class WristControls {
    * 
    * <p> 
    * 
-   * By doing m_wrist = wristSubsystemMotorPower(line 49), m_wrist now holds a WristSubsystemMotorPower class now. We can now access all the methods inside WristSubsystemMotorPower.java
+   * By doing m_wrist = wristSubsystemMotorPower(line 50), m_wrist now holds a WristSubsystemMotorPower class now. We can now access all the methods inside WristSubsystemMotorPower.java
    * 
    * <p>
    * 
-   * For the other instance variables, we can just pass in objects of our desired classes to them by doing m_instanceVariable = new Class(); .We do this in the constructor, ex: m_joy = new Joystick(0); 
+   * For the other instance variables, we can just pass in objects of our desired classes to them by doing m_instanceVariable = new Class(); .We do this in the constructor below, ex: m_joy = new Joystick(0); 
    * 
    * <p> 
    * 
@@ -63,7 +63,7 @@ public class WristControls {
 
     /**
      * When a button is pressed an InstantCommand() is created that, on button press,
-     * sets the desired motorPower to the wrist by using the setMotorPower() method declared in WristSubsystemMotorPower.java
+     * sets the desired motorPower to the wrist by using the setMotorPower() method declared in WristSubsystemMotorPower.java. 
      */
 
     m_button1.onTrue(new InstantCommand(()-> m_wrist.setMotorPower(0.25)));

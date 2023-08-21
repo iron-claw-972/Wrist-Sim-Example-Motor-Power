@@ -11,7 +11,6 @@ import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
@@ -54,7 +53,7 @@ public class WristSubsystemMotorPower extends SubsystemBase {
      * Allocate resources for simulation only if the robot is in a simulation. 
      * This is VERY IMPORTANT TO DO because when we update our simulated inbuilt motor encoder(falcon motors have an inbuilt encoder) in simulationPeriodic() it updates the actual encoder in the motor.
      * 
-     * By wrapping the simulation stuff in this if statement, simulation stuff is only created if we are running the simulation. If sim stuff is only created when sim mode is running, then there is little chance of actual motors, sensors, etc. being affected.
+     * By wrapping the simulation stuff in this if statement, simulation stuff is only created if we are running the simulation. If sim stuff is only created when sim mode is running, then there is little chance of actual motors, sensors, etc. being affected and (say) moving. 
      *
      */
     if(RobotBase.isSimulation()){
@@ -84,7 +83,7 @@ public class WristSubsystemMotorPower extends SubsystemBase {
        * 
        * In the angle parameter we don't set a fixed angle. Otherwise the moving arm won't update it's position when we display it. 
        * 
-       * Instead we tell the angle to be what the current angle of the arm is. When this changes in
+       * Instead we tell the angle to be what the current angle of the arm physics simulation is. When this changes in
        * simulationPeriodic() the moving arm will move on the display. 
        */
       m_moving = m_pivot.append(
@@ -95,47 +94,53 @@ public class WristSubsystemMotorPower extends SubsystemBase {
               6,
               new Color8Bit(Color.kYellow)));
   
-      //put the wrist on SmartDashboard by putting the wrist_display on smartDashboard 
+      //put the wrist on SmartDashboard by putting m_wristDisplay on SmartDashboard 
       SmartDashboard.putData("Wrist", m_wristDisplay); 
-
     }
+
+    //initally set the motor power to 0. In real life this prevents the wrist from shooting up when the robot is powered on. 
+    //it is a good idea to do these function calls after you have declared everything in the constructor to avoid getting errors(objects you are trying to use haven't been declared yet and thus return null)
     setMotorPower(0);
   }
 
 
-  //This the periodic method. It constantly runs in both teleop and autonomous. 
+  //This the periodic method. It constantly runs in teleop and autonomous(not sure about test mode).   
   @Override
   public void periodic() {
     // This method will be called once every time the scheduler runs
     moveMotor();
   }
 
-  //This is the simulationPeriodic() method. It constantly runs when we launch the simulator. 
+
+  //This is the simulationPeriodic() method. It constantly runs in disabled mode, teleop, and autonomous modes when we launch the simulator.
+
   @Override
   public void simulationPeriodic() {
     /**
-     * First, we set our voltage to the armSim.
+     * First, we set our voltage to the armSim physiscs simulation. 
      *  
      * We do this by multipling the motor's power value(-1 to 1) by the battery voltage, which gets estimated later.
      * 
-     * The motor's power value changes when our instant commands in WristControls changes it. This causes us to set a different voltage input to the arm sim, which updates it's angle, which updates the moving arm of the wrist, which updates the display. 
-     *
+     * The motor's power value changes when our instant commands in WristControls changes it(they call the setMotorPower() method). 
+     * This causes us to set a different voltage input to the arm sim, which updates it's angle,which updates the moving arm of the wrist, 
+     * which updates the display. 
      * 
-     * If we were to call m_armSim.getAngleRads() the armSim would do some math using this voltage and calculate its angle in radians. 
-     */    
-    m_armSim.setInput(m_wristMotor.get() * RobotController.getBatteryVoltage());
+     */   
     
-    // Next, we update the armSim. The standard loop time is 20ms.
+    m_armSim.setInput(m_wristMotor.get() * RobotController.getBatteryVoltage());
+  
+    // Next, we update the armSim physics simulation. The standard loop time is 20ms.
     m_armSim.update(0.020);
       
     /**
      * The BatterySim estimates loaded battery voltages(voltage of battery under load due to motors and other stuff running) based on the armSim's calculation of it's current draw. 
      * 
-     * Adding up all the currents of all of our subsystems would give us a more accurate loaded battery voltage number and a more accurate sim. But it's fine for this. It may or may not be neccesary to add based on the current draw of the other subsystems.  
+     * Adding up all the currents of all of our subsystems would give us a more accurate loaded battery voltage number and a more accurate sim. But it's fine for this. It may or may not be neccesary to add currents based on the current draw of the other subsystems.  
      * 
-     * We set this voltage as the VIn Voltage of the RobRio(voltage that gets sent to the roboRio, this input voltage changes in real life as well)
-     * Then we can do RobotController.getBatteryVoltage() and multiply it by our motor's power to set the armSim's input, as we did at the top of the simulationPeriodic() method. 
+     * We set this voltage as the VIn Voltage of the RoboRio(voltage that gets sent to the roboRio, this input voltage changes in real life as well)
+     * Then we can do RobotController.getBatteryVoltage() to get the VIn voltage of the roboRio and multiply it by our motor's power to set the armSim's input, as we did at the top of the simulationPeriodic() method. 
      */
+
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(m_armSim.getCurrentDrawAmps()));
 

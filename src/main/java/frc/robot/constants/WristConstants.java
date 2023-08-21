@@ -13,12 +13,12 @@ public class WristConstants {
   public static final  DCMotor m_armGearbox = DCMotor.getVex775Pro(2);
   public static final double kGearing = (20.0/1.0) * (62.0/34.0) * (48.0/18.0);
   public static final double kArmLength = Units.inchesToMeters(16.1);
- 
-  //calculate MOI using the center of gravity distance and weight
+
+  //COG = center of gravity
   public static final double kCOGWeight = Units.lbsToKilograms(7.3);
   public static final double kCOGDistance = Units.inchesToMeters(8.11);
  
-  /** Wrist moment of inertia represents how hard it is to angularly accelerate (ie spin) something. */
+  /** Moment of inertia represents how hard it is to angularly accelerate (ie spin) something. */
   public static final double kMomentOfInertia = kCOGWeight * kCOGDistance * kCOGDistance; // 0.1405
 
   //the min and max angles of the wrist
